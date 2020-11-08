@@ -1,6 +1,7 @@
 ## Extractor.
 This repository contains an entities extractor for determined type of document. The class plays mainly the roll 
-of a wrapper and the file tools.py contains 
+of a wrapper and the file tools.py contains
+
     1 extractor_pg1: function for extracting the entities from the first page 
         with an assistant matcher with the necessary regexes
     1 extractor_pg2: function for extracting the entities from the first page 
