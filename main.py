@@ -1,6 +1,6 @@
 import logging
 import os
-from tools import pdf_to_text, extracter_pg1, extracter_pg2, extracter_transactions
+from tools import pdf_to_text, extractor_pg1, extractor_pg2, extractor_transactions
 
 class Extractor():
 
@@ -14,27 +14,27 @@ class Extractor():
         self.text = pdf_to_text(self.name + ".pdf",save=True, giveback=True)
         logging.info('The file has been converted')
 
-    def extracter_pg1(self, print_yes=False, return_yes=False):
+    def extractor_pg1(self, print_yes=False, return_yes=False):
         with open(self.path_txt, "r") as pg1:
-            my_dict1 = extracter_pg1(pg1)
+            my_dict1 = extractor_pg1(pg1)
             pg1.close()
         if print_yes:
             [print("{}: {}".format(x, y)) for x, y in my_dict1.items()]
         if return_yes:
             return my_dict1
 
-    def extracter_pg2(self, print_yes=False, return_yes=False):
+    def extractor_pg2(self, print_yes=False, return_yes=False):
         with open(self.path_txt, "r") as pg2:
-            my_dict2 = extracter_pg2(pg2)
+            my_dict2 = extractor_pg2(pg2)
             pg2.close()
         if print_yes:
             [print("{}: {}".format(x, y)) for x, y in my_dict2.items()]
         if return_yes:
             return my_dict2
 
-    def extracter_transactions(self, print_yes=False, return_yes=False):
+    def extractor_transactions(self, print_yes=False, return_yes=False):
         with open(self.path_txt, "r") as whole_text:
-            my_dict3 = extracter_transactions(whole_text)
+            my_dict3 = extractor_transactions(whole_text)
             whole_text.close()
         if print_yes:
             [print(x) for x in my_dict3.items()]
@@ -46,8 +46,8 @@ if __name__ == '__main__':
     file = "DL template 02.pdf"
     My_Extractor = Extractor(file)
     My_Extractor.pdf_to_text()
-    My_Extractor.extracter_pg1(print_yes=True)
-    My_Extractor.extracter_pg2(print_yes=True)
-    My_Extractor.extracter_transactions(print_yes=True)
+    My_Extractor.extractor_pg1(print_yes=True)
+    My_Extractor.extractor_pg2(print_yes=True)
+    My_Extractor.extractor_transactions(print_yes=True)
 
 

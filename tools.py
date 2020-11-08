@@ -44,7 +44,7 @@ def pdf_to_text(name, save=False, giveback=False):
         logging.info("The file was not saved")
 
 
-def extracter_pg1(text):
+def extractor_pg1(text):
     """
     Thus function extract the desired entities and give them back as dictionary
     Input:
@@ -152,7 +152,7 @@ def matcher_pg1(text, search):
         return re.findall("\d\d\s[a-zA-Z]+\s\d\d",text)
 
 
-def extracter_pg2(text):
+def extractor_pg2(text):
     """
     Thus function extract the desired entities and give them back as dictionary
     Input:
@@ -188,7 +188,7 @@ def matcher_pg2(text, search):
         return re.findall("\d+[.]\d{1,2}\%",text)
 
 
-def extracter_transactions(text):
+def extractor_transactions(text):
     """
     Thus function extract the desired entities and give back them in lists and strings
     Input:
