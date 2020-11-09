@@ -3,6 +3,7 @@ import pdftotext
 import logging
 import re
 
+
 def pdf_to_text(name, save=False, giveback=False):
     """
      This function onvert pdf to txt
@@ -13,9 +14,9 @@ def pdf_to_text(name, save=False, giveback=False):
     Output:
         - It saves the txt into data/text/~
     """
-    not_fail=True
+    not_fail = True
     try:
-        with open(os.path.join("data","pdf",name), "rb") as f:
+        with open(os.path.join("data", "pdf", name), "rb") as f:
             salida = pdftotext.PDF(f)
             f.close()
     except:
@@ -32,7 +33,7 @@ def pdf_to_text(name, save=False, giveback=False):
         if rename + ".txt" in local_dir_txt:
             logging.info("The txt file already exists")
         elif not_fail:
-            with open(os.path.join(local_dir_txt,rename+".txt"), "w+") as file:
+            with open(os.path.join(local_dir_txt, rename + ".txt"), "w+") as file:
                 for page in salida:
                     file.write(page)
             file.close()
@@ -40,7 +41,7 @@ def pdf_to_text(name, save=False, giveback=False):
             logging.info(rename + ".txt was not created")
         if giveback:
             text = ""
-            with open(os.path.join(local_dir_txt,rename+".txt"), "r") as file:
+            with open(os.path.join(local_dir_txt, rename + ".txt"), "r") as file:
                 for line in file:
                     text = text + line
                 return text
@@ -111,49 +112,49 @@ def extractor_pg1(text):
     name_string = N_A_C[0].strip()
     country_string = N_A_C[-1].strip()
     N_A_C = N_A_C[1:-1]
-    Address_string = ', '.join([x.strip() for x in N_A_C])
+    address_string = ', '.join([x.strip() for x in N_A_C])
 
     # Extract statement date
     statement_list = matcher_pg1(statement_date, "date")[0]
 
     # Extract Credit limit
-    credit = matcher_pg1(credit,"amount")[0]
+    credit = matcher_pg1(credit, "amount")[0]
 
     # Extract Current Statement Balance
-    CurrentSB = matcher_pg1(CSB,"amount")[0]
+    currentSB = matcher_pg1(CSB, "amount")[0]
 
     # Extract Available to spend
-    Available = matcher_pg1(ATS,"amount")[0]
+    available = matcher_pg1(ATS, "amount")[0]
 
     # Extract Total Payment Due
-    Total_Due = matcher_pg1(TPD,"total")[0]
+    total_Due = matcher_pg1(TPD, "total")[0]
 
     # Extract Total Payment Due
-    Min_Payment = matcher_pg1(MP,"total")[0]
+    min_Payment = matcher_pg1(MP, "total")[0]
 
     # Extract Total Payment Due
-    Arrears_Immediately_Due = matcher_pg1(AID,"total")[0]
+    arrears_immediately_due = matcher_pg1(AID, "total")[0]
 
     # Extract Total Payment Due By
-    Total_Due_By = matcher_pg1(TPDB,"date")[0]
+    total_due_by = matcher_pg1(TPDB, "date")[0]
 
     # Prepare output
-    my_keys = ["Customer Address","Account Number","Customer Name","Customer Country",
-               "Statement Date", "Credit Limit", "Current statement Balance","Available to spend",
+    my_keys = ["Customer Address", "Account Number", "Customer Name", "Customer Country",
+               "Statement Date", "Credit Limit", "Current statement Balance", "Available to spend",
                "Minimum Payment", "Arrears Immediately Due", "Total Payment Due", "Total Payment Due by"]
-    my_values = [Address_string,account,name_string,country_string,statement_list,credit,CurrentSB,Available,
-                 Min_Payment, Arrears_Immediately_Due, Total_Due,Total_Due_By]
+    my_values = [address_string, account, name_string, country_string, statement_list, credit, currentSB, available,
+                 min_Payment, arrears_immediately_due, total_Due, total_due_by]
     output = dict(zip(my_keys, my_values))
     return output
 
 
 def matcher_pg1(text, search):
     if search == "total":
-        return re.findall("\d+[,.]\d*[,.]*\d\d",text)
+        return re.findall("\d+[,.]\d*[,.]*\d\d", text)
     if search == "amount":
-        return re.findall("[€]\d+[,.]*\d+[,.]\d*",text)
+        return re.findall("[€]\d+[,.]*\d+[,.]\d*", text)
     if search == "date":
-        return re.findall("\d\d\s[a-zA-Z]+\s\d\d",text)
+        return re.findall("\d\d\s[a-zA-Z]+\s\d\d", text)
 
 
 def extractor_pg2(text):
@@ -179,16 +180,17 @@ def extractor_pg2(text):
             pass
 
     # Extract Cash Purchase Interest Rate Applicable and Card Purchase Interest Rate Applicable
-    MR = matcher_pg2(MR,"rate")
+    MR = matcher_pg2(MR, "rate")
 
     # Prepare output
     my_keys = ["Card Purchase Interest Rate Applicable", "Cash Purchase Interest Rate Applicable"]
     output = dict(zip(my_keys, MR[:2]))
     return output
 
+
 def matcher_pg2(text, search):
     if search == "rate":
-        return re.findall("\d+[.]\d{1,2}\%",text)
+        return re.findall("\d+[.]\d{1,2}\%", text)
 
 
 def extractor_transactions(text):
@@ -207,29 +209,29 @@ def extractor_transactions(text):
             transaction_num = 0
         if "continued on next page" in line.lower():
             transaction_num = 0
-        if (matcher_transaction(line, "transactions_date") != None and transaction_num==0) or transaction_num>0:
+        if (matcher_transaction(line, "transactions_date") != None and transaction_num == 0) or transaction_num > 0:
             transaction_num += 1
-            new_match = matcher_transaction(line,"transactions_date")
+            new_match = matcher_transaction(line, "transactions_date")
             if new_match == old_match or new_match == None:
                 transactions_dict[old_match] = transactions_dict[old_match] + line
             elif new_match != None:
                 transactions_dict[new_match] = line
                 old_match = new_match
 
-    #Extraction Transactions
+    # Extraction Transactions
     output = {}
-    for k,v in transactions_dict.items():
-        transaction_num +=1
-        transaction_amount = matcher_transaction(v,"transaction_amount")[0].strip()
-        v = v.replace(k[0],"").replace(transaction_amount,"").replace("Available to spend","")
-        v = v.replace("Contacting us Online","").replace("§ check your balance","").replace("You can","")
-        other_amounts = matcher_transaction(v,"euro_amount")
+    for k, v in transactions_dict.items():
+        transaction_num += 1
+        transaction_amount = matcher_transaction(v, "transaction_amount")[0].strip()
+        v = v.replace(k[0], "").replace(transaction_amount, "").replace("Available to spend", "")
+        v = v.replace("Contacting us Online", "").replace("§ check your balance", "").replace("You can", "")
+        other_amounts = matcher_transaction(v, "euro_amount")
         if other_amounts != []:
             for amount in other_amounts:
-                v = v.replace(amount,"")
+                v = v.replace(amount, "")
         transaction = " ".join(v.split()).strip()
         dates = k[0].split()
-        output[transaction_num] = [" ".join(dates[:3])," ".join(dates[3:]),transaction_amount,transaction]
+        output[transaction_num] = [" ".join(dates[:3]), " ".join(dates[3:]), transaction_amount, transaction]
 
     return output
 
@@ -237,11 +239,11 @@ def extractor_transactions(text):
 def matcher_transaction(text, search):
     # All transactions dates
     if search == "transactions_dates":
-        return re.findall("\d\d\s[a-zA-Z]+\s\d\d\s+\d\d\s[a-zA-Z]+\s\d\d\s+",text)
+        return re.findall("\d\d\s[a-zA-Z]+\s\d\d\s+\d\d\s[a-zA-Z]+\s\d\d\s+", text)
     # The first transaction date
     if search == "transactions_date":
-        return re.search("\d\d\s[a-zA-Z]+\s\d\d\s+\d\d\s[a-zA-Z]+\s\d\d\s+",text)
+        return re.search("\d\d\s[a-zA-Z]+\s\d\d\s+\d\d\s[a-zA-Z]+\s\d\d\s+", text)
     if search == "transaction_amount":
-        return re.search(" [^€]\d*[,]*\d{1,3}[.]\d\d\s{1}C*r*",text)
+        return re.search(" [^€]\d*[,]*\d{1,3}[.]\d\d\s{1}C*r*", text)
     if search == "euro_amount":
-        return re.findall("[€]\d+[,.]*\d+[,.]\d*",text)
+        return re.findall("[€]\d+[,.]*\d+[,.]\d*", text)
