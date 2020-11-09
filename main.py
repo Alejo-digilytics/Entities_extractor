@@ -77,13 +77,16 @@ class Extractor:
         if return_yes:
             return my_dict3
 
-    def extract_entities(self):
+    def extract_entities(self, as_json=True):
         self.pdf_to_text()
         dict1 = self.extractor_pg1(print_yes=False, return_yes=True)
         dict2 = self.extractor_pg2(print_yes=False, return_yes=True)
         dict3 = self.extractor_transactions(print_yes=False, return_yes=True)
         output_dict = {**dict1, **dict2, **dict3}
-        return json.dumps(output_dict)
+        if as_json:
+            return json.dumps(output_dict)
+        else:
+            return output_dict
 
 
 if __name__ == '__main__':
@@ -94,6 +97,7 @@ if __name__ == '__main__':
     # My_Extractor.extractor_pg2(print_yes=True)
     # My_Extractor.extractor_transactions(print_yes=True)
 
-    My_json = My_Extractor.extract_entities()
+    #My_json = My_Extractor.extract_entities()
+    My_dict = My_Extractor.extract_entities(as_json=False)
 
-    # [print("{}: {}".format(x, y)) for x, y in My_dict.items()]
+    [print("{}: {}".format(x, y)) for x, y in My_dict.items()]

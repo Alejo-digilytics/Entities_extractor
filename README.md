@@ -36,3 +36,7 @@ They can be installed with the command `pip3 install -r requirements.txt`.
 To process one of the pdf with a fixed format it is necessary to introduce it in `data/pdf/` 
 and write its name in the Extractor class. The class Extractor will take the pdf,
 convert it into txt and extract all the entities. 
+
+#### REMARKS
+This repository only works for a concrete type of document
+One of the regexes use that some of the amounts are preceded by "€".
