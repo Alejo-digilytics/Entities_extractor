@@ -5,9 +5,13 @@ import re
 
 def pdf_to_text(name, save=False, giveback=False):
     """
-    Convert pdf to txt
-    :param name: string with the name of the pdf, including .pdf
-    :return: pdftotext.PDF file
+     This function onvert pdf to txt
+    Input:
+        - name: string with the name of the pdf, including .pdf
+        - save (Boolean): conditional to save or not
+        - giveback (Boolean): conditional to save or not
+    Output:
+        - It saves the txt into data/text/~
     """
     not_fail=True
     try:
@@ -174,8 +178,7 @@ def extractor_pg2(text):
         else:
             pass
 
-    # Extract Card Purchase Interest Rate Applicable
-    # Extract Cash Purchase Interest Rate Applicable
+    # Extract Cash Purchase Interest Rate Applicable and Card Purchase Interest Rate Applicable
     MR = matcher_pg2(MR,"rate")
 
     # Prepare output
@@ -190,10 +193,11 @@ def matcher_pg2(text, search):
 
 def extractor_transactions(text):
     """
-    Thus function extract the desired entities and give back them in lists and strings
+    Thus function extract the transactions and returns a dictionary containing them
     Input:
         - text (.txt): text file containing the first page
-    :return:
+    Output:
+        - output (python dictionary): dictionary containing the transactions
     """
     transactions_dict = {}
     transaction_num = 0
@@ -211,9 +215,9 @@ def extractor_transactions(text):
             elif new_match != None:
                 transactions_dict[new_match] = line
                 old_match = new_match
-    output = {}
-    trans_num = 0
+
     #Extraction Transactions
+    output = {}
     for k,v in transactions_dict.items():
         transaction_num +=1
         transaction_amount = matcher_transaction(v,"transaction_amount")[0].strip()
@@ -226,32 +230,18 @@ def extractor_transactions(text):
         transaction = " ".join(v.split()).strip()
         dates = k[0].split()
         output[transaction_num] = [" ".join(dates[:3])," ".join(dates[3:]),transaction_amount,transaction]
+
     return output
 
-
-        # print(v.replace(k[0],"").replace(matcher_transaction(v,"transaction_amount")))
 
 def matcher_transaction(text, search):
     # All transactions dates
     if search == "transactions_dates":
         return re.findall("\d\d\s[a-zA-Z]+\s\d\d\s+\d\d\s[a-zA-Z]+\s\d\d\s+",text)
+    # The first transaction date
     if search == "transactions_date":
         return re.search("\d\d\s[a-zA-Z]+\s\d\d\s+\d\d\s[a-zA-Z]+\s\d\d\s+",text)
-    #if search == "transaction_amount":
-    #    return re.search(" [^€]\d*[,]*\d{1,3}[.]\d\d",text)
     if search == "transaction_amount":
         return re.search(" [^€]\d*[,]*\d{1,3}[.]\d\d\s{1}C*r*",text)
     if search == "euro_amount":
         return re.findall("[€]\d+[,.]*\d+[,.]\d*",text)
-
-
-def pages_spliter(text):
-    split = text.split("2 of")
-    pg1 = split[0]
-    pg2 = split[1]
-    if "3 of" in pg2:
-        split = text.split("2 of")
-        pg2 = split[0]
-        pg3 = split[1]
-        return pg1, pg2, pg3
-    return pg1, pg2
